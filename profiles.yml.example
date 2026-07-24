@@ -5,7 +5,8 @@ bjs_de:
       type: snowflake
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
       user: "{{ env_var('SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD', '') }}"
+      authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake') }}"
       role: "{{ env_var('SNOWFLAKE_ROLE') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
       database: "{{ env_var('DBT_TARGET_DATABASE', 'DBT_DEV') }}"

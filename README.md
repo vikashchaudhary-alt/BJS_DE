@@ -41,6 +41,24 @@ export SNOWFLAKE_ROLE='<role>'
 export SNOWFLAKE_WAREHOUSE='<warehouse>'
 ```
 
+For Snowflake browser SSO, omit `SNOWFLAKE_PASSWORD` and set:
+
+```bash
+export SNOWFLAKE_AUTHENTICATOR='externalbrowser'
+```
+
+Alternatively, edit the ignored `.env` file, then load it in the VS Code
+terminal before running dbt:
+
+```bash
+set -a
+source .env
+set +a
+```
+
+`DBT_PROFILES_DIR=.` makes dbt use the ignored repository-local `profiles.yml`
+with the `bjs_de` profile.
+
 Optional project settings use dbt Cloud-compatible `DBT_` names:
 
 ```bash
