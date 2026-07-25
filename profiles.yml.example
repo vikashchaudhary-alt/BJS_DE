@@ -9,7 +9,7 @@ bjs_de:
       authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake') }}"
       role: "{{ env_var('SNOWFLAKE_ROLE') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
-      database: "{{ env_var('DBT_TARGET_DATABASE', 'DBT_DEV') }}"
+      database: "{{ env_var('DBT_ENVIRONMENT') | upper }}_SILVER"
       schema: DWR
       threads: 4
       client_session_keep_alive: false

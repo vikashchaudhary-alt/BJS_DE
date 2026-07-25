@@ -1,7 +1,7 @@
 {% macro create_audit_schema() %}
     create schema if not exists
-        {{ env_var('DBT_TARGET_DATABASE', 'DBT_DEV') }}.
-        {{ env_var('DBT_AUDIT_SCHEMA', 'AUDIT') }}
+        {{ env_var('DBT_ENVIRONMENT') | upper }}_SILVER.
+        AUDIT
 {% endmacro %}
 
 {% macro create_model_run_audit_table() %}

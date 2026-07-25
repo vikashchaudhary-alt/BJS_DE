@@ -59,14 +59,15 @@ set +a
 `DBT_PROFILES_DIR=.` makes dbt use the ignored repository-local `profiles.yml`
 with the `bjs_de` profile.
 
-Optional project settings use dbt Cloud-compatible `DBT_` names:
+Select the environment with one dbt Cloud-compatible variable:
 
 ```bash
-export DBT_TARGET_DATABASE='DBT_DEV'
-export DBT_AUDIT_SCHEMA='AUDIT'
-export DBT_SRC_POSI_DATABASE='SRCPOSIDB_DEV'
-export DBT_DWR_REFERENCE_DATABASE='DWRDB_DEV'
+export DBT_ENVIRONMENT='dev'
 ```
+
+`DBT_ENVIRONMENT` is required. Allowed values are `dev`, `qa`, and `prod`. The
+project derives the database names from this value: `<ENV>_BRONZE` for the POSI
+source and `<ENV>_SILVER` for reference data, models, and audit objects.
 
 Validate configuration without running warehouse SQL:
 
@@ -107,3 +108,7 @@ IDs inherit source values or default to `-1` as described in the model docs.
 Follow [DBT_CLOUD_SETUP.md](docs/DBT_CLOUD_SETUP.md) to connect this repository
 to dbt Cloud, configure development/CI/production environments, enable GitHub
 pull-request checks, and trigger the production job from Astronomer Airflow.
+
+For the step-by-step environment and job configuration using the Snowflake
+Bronze/Silver database layout, follow
+[DBT_CLOUD_ENVIRONMENT_AND_JOBS.md](docs/DBT_CLOUD_ENVIRONMENT_AND_JOBS.md).

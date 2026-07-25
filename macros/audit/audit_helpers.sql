@@ -1,7 +1,7 @@
 {% macro audit_relation() -%}
     {{ return(api.Relation.create(
-        database=env_var('DBT_TARGET_DATABASE', 'DBT_DEV'),
-        schema=env_var('DBT_AUDIT_SCHEMA', 'AUDIT'),
+        database=(env_var('DBT_ENVIRONMENT') | upper) ~ '_SILVER',
+        schema='AUDIT',
         identifier='MODEL_RUN_AUDIT'
     )) }}
 {%- endmacro %}

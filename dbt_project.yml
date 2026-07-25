@@ -27,8 +27,12 @@ on-run-start:
 on-run-end:
   - "{{ log_model_run_results(results) }}"
 
-# Cloud environments can provide these values as DBT_* environment variables.
-# CLI --vars values take precedence, which lets Airflow supply per-run lineage.
+# DBT_ENVIRONMENT is the only environment selector. Database names follow the
+# project's Bronze/Silver convention:
+#   dev  -> DEV_BRONZE / DEV_SILVER
+#   qa   -> QA_BRONZE  / QA_SILVER
+#   prod -> PROD_BRONZE / PROD_SILVER
+# CLI --vars values take precedence for per-run lineage metadata.
 vars:
   source_lineage_id: "{{ env_var('DBT_SOURCE_LINEAGE_ID', 'null') | as_native }}"
   lineage_id: "{{ env_var('DBT_LINEAGE_ID', 'null') | as_native }}"
@@ -39,7 +43,7 @@ vars:
 
 models:
   bjs_de:
-    +database: "{{ env_var('DBT_TARGET_DATABASE', 'DBT_DEV') }}"
+    +database: "{{ env_var('DBT_ENVIRONMENT') | upper }}_SILVER"
     +persist_docs:
       relation: true
       columns: true

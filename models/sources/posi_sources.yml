@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: src_posi
     description: Persisted POSI source records produced by the existing source-load procedures.
-    database: "{{ env_var('DBT_SRC_POSI_DATABASE', 'SRCPOSIDB_DEV') }}"
+    database: "{{ env_var('DBT_ENVIRONMENT') | upper }}_BRONZE"
     schema: DBO
     tables:
       - name: posi_journal
@@ -27,7 +27,7 @@ sources:
 
   - name: dwr_reference
     description: Existing DWR reference data required by the pilot transformation.
-    database: "{{ env_var('DBT_DWR_REFERENCE_DATABASE', 'DWRDB_DEV') }}"
+    database: "{{ env_var('DBT_ENVIRONMENT') | upper }}_SILVER"
     schema: DBO
     tables:
       - name: journal_account
