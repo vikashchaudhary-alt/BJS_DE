@@ -23,7 +23,7 @@
             ROWS_AFFECTED,
             ADAPTER_MESSAGE
         )
-        {%- for result in results %}
+        {% for result in results %}
             {%- set response = result.adapter_response if result.adapter_response is not none else {} -%}
             select
                 {{ sql_literal(invocation_id) }},
@@ -45,7 +45,9 @@
                 {{ result.execution_time if result.execution_time is not none else 'null' }},
                 {{ response.get('rows_affected', 'null') if response.get('rows_affected', none) is not none else 'null' }},
                 {{ sql_literal(result.message) }}
-            {% if not loop.last %}union all{% endif %}
-        {%- endfor %}
+            {% if not loop.last %}
+            union all
+            {% endif %}
+        {% endfor %}
     {%- endif -%}
 {% endmacro %}
