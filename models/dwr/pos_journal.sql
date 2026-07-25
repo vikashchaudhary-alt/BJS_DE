@@ -23,7 +23,7 @@ with source_journal as (
         src.LoadId as SourceLoadId
     from {{ source('src_posi', 'posi_journal') }} as src
     where src.CC_CODE = 'CC000'
-    {% if var('source_lineage_id', none) is not none %}
+    {% if has_numeric_var('source_lineage_id') %}
         and src.LineageId = {{ numeric_var('source_lineage_id', required=true) }}
     {% endif %}
 ),
@@ -36,11 +36,11 @@ transformed as (
         src.Credit as CreditAmount,
         src.Debit as DebitAmount,
         src.SourceLineageId,
-        {{ numeric_var('lineage_id', 'src.SourceLineageId') }} as LineageId,
-        {{ numeric_var('load_id', 'src.SourceLoadId') }} as LoadId,
-        {{ numeric_var('loop_id', '-1') }} as LoopId,
-        {{ numeric_var('run_id', '-1') }} as RunId,
-        {{ numeric_var('procedure_id', '-1') }} as ProcedureId,
+        cast({{ numeric_var('lineage_id', 'src.SourceLineageId') }} as number(38, 0)) as LineageId,
+        cast({{ numeric_var('load_id', 'src.SourceLoadId') }} as number(38, 0)) as LoadId,
+        cast({{ numeric_var('loop_id', '-1') }} as number(38, 0)) as LoopId,
+        cast({{ numeric_var('run_id', '-1') }} as number(38, 0)) as RunId,
+        cast({{ numeric_var('procedure_id', '-1') }} as number(38, 0)) as ProcedureId,
         '{{ invocation_id }}' as DbtInvocationId,
         to_timestamp_tz('{{ run_started_at.isoformat() }}') as DbtRunStartedAt,
         to_timestamp_ntz('{{ run_started_at.isoformat() }}') as InsertDateTime,

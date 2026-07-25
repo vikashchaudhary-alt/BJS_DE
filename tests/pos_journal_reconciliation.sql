@@ -9,7 +9,7 @@ with expected as (
         and src.SiteId = sb.SiteId
     where src.CC_CODE = 'CC000'
         and (sb.IsOpenOnDayDate = 1 or src.SiteId = 589)
-    {% if var('source_lineage_id', none) is not none %}
+    {% if has_numeric_var('source_lineage_id') %}
         and src.LineageId = {{ numeric_var('source_lineage_id', required=true) }}
     {% endif %}
 ),
@@ -20,7 +20,7 @@ actual as (
         coalesce(sum(CreditAmount), 0) as CreditAmount,
         coalesce(sum(DebitAmount), 0) as DebitAmount
     from {{ ref('pos_journal') }}
-    {% if var('source_lineage_id', none) is not none %}
+    {% if has_numeric_var('source_lineage_id') %}
         where SourceLineageId = {{ numeric_var('source_lineage_id', required=true) }}
     {% endif %}
 )

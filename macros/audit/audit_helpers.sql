@@ -15,7 +15,7 @@
 
 {% macro audit_numeric_var(name) -%}
     {%- set value = var(name, none) -%}
-    {%- if value is none -%}
+    {%- if not has_numeric_var(name) -%}
         {{ return('null') }}
     {%- endif -%}
     {{ return(value | as_number) }}
