@@ -47,3 +47,7 @@ models:
     +persist_docs:
       relation: true
       columns: true
+    # DWR models always resolve to <ENV>_SILVER.DWR, independent of the
+    # credential schema configured in dbt Cloud.
+    dwr:
+      +schema: DWR
