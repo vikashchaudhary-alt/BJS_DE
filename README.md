@@ -1,15 +1,114 @@
-Welcome to your new dbt project!
+# BJS data engineering dbt project
 
-### Using the starter project
+This Snowflake project ports the POS Journal modernisation pilot into the
+`bjs_de` dbt project. It is designed to run both from dbt Core and dbt Cloud.
 
-Try running the following commands:
-- dbt run
-- dbt test
+## What it builds
 
+`models/dwr/pos_journal.sql` reads the existing POSI journal and DWR reference
+tables and writes `POSJOURNAL` to the configured target database and schema.
+The first full refresh processes source history. Each later incremental run
+requires a `source_lineage_id` and replaces the affected `BusinessDate + SiteId`
+partitions with dbt's Snowflake `delete+insert` strategy.
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [dbt community](https://getdbt.com/community) to learn from other analytics engineers
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+The project also includes:
+
+- source and model documentation with data tests;
+- reconciliation, account-mapping, and valid-site-day tests;
+- numeric lineage validation; and
+- run hooks that write node results to `<target database>.AUDIT.MODEL_RUN_AUDIT`.
+
+## Local setup
+
+Use an isolated virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+mkdir -p ~/.dbt
+cp profiles.yml.example ~/.dbt/profiles.yml
+```
+
+Set credentials outside the repository:
+
+```bash
+export SNOWFLAKE_ACCOUNT='<account>'
+export SNOWFLAKE_USER='<user>'
+export SNOWFLAKE_PASSWORD='<password>'
+export SNOWFLAKE_ROLE='<role>'
+export SNOWFLAKE_WAREHOUSE='<warehouse>'
+```
+
+For Snowflake browser SSO, omit `SNOWFLAKE_PASSWORD` and set:
+
+```bash
+export SNOWFLAKE_AUTHENTICATOR='externalbrowser'
+```
+
+Alternatively, edit the ignored `.env` file, then load it in the VS Code
+terminal before running dbt:
+
+```bash
+set -a
+source .env
+set +a
+```
+
+`DBT_PROFILES_DIR=.` makes dbt use the ignored repository-local `profiles.yml`
+with the `bjs_de` profile.
+
+Select the environment with one dbt Cloud-compatible variable:
+
+```bash
+export DBT_ENVIRONMENT='dev'
+```
+
+`DBT_ENVIRONMENT` is required. Allowed values are `dev`, `qa`, and `prod`. The
+project derives the database names from this value: `<ENV>_BRONZE` for the POSI
+source and `<ENV>_SILVER` for reference data, models, and audit objects.
+
+Validate configuration without running warehouse SQL:
+
+```bash
+dbt parse
+```
+
+Validate the Snowflake connection, then run the initial historical build:
+
+```bash
+dbt debug
+dbt build --select pos_journal --full-refresh
+```
+
+For a small connection and table-creation smoke test, run the retained starter
+model by itself:
+
+```bash
+dbt run --select my_first_dbt_model
+```
+
+The starter model intentionally contains one null `id`. Its `not_null` data test
+will therefore fail if you use `dbt build` or `dbt test`; uncomment the final
+filter in the model when you want that demonstration test to pass.
+
+Run one incremental lineage:
+
+```bash
+dbt build --select pos_journal --vars \
+  '{source_lineage_id: 129128, lineage_id: 229128, load_id: 329128, loop_id: 1, run_id: 429128, procedure_id: 529128}'
+```
+
+Only `source_lineage_id` is required for an incremental run. The other numeric
+IDs inherit source values or default to `-1` as described in the model docs.
+
+## dbt Cloud and orchestration
+
+Follow [DBT_CLOUD_SETUP.md](docs/DBT_CLOUD_SETUP.md) to connect this repository
+to dbt Cloud, configure development/CI/production environments, enable GitHub
+pull-request checks, and trigger the production job from Astronomer Airflow.
+
+For the step-by-step environment and job configuration using the Snowflake
+Bronze/Silver database layout, follow
+[DBT_CLOUD_ENVIRONMENT_AND_JOBS.md](docs/DBT_CLOUD_ENVIRONMENT_AND_JOBS.md).
